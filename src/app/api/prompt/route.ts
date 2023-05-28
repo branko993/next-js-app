@@ -1,5 +1,6 @@
 import Prompt from '@/models/prompt'
 import { connectToDB } from '@/utils/database'
+export const revalidate = 5
 
 export async function GET(request: any): Promise<Response> {
   try {
