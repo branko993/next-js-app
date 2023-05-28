@@ -1,0 +1,6 @@
+{
+  "extends": ["eslint-config-next", "prettier"],
+  "rules": {
+    "no-unused-vars": "warn"
+  }
+}
