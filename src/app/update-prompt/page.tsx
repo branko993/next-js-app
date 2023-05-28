@@ -23,7 +23,7 @@ const UpdatePrompt = (props: Props) => {
   useEffect(() => {
     const getPromptDetails = async () => {
       const response = await fetch(`/api/prompt/${promptId}`, {
-        cache: 'no-store',
+        next: { revalidate: 10 },
       })
       const data = await response.json()
       setPost({

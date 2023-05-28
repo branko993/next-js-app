@@ -15,7 +15,7 @@ const MyProfile = (props: Props) => {
   useEffect(() => {
     const fetchPosts = async () => {
       const response = await fetch(`/api/users/${session?.user.id}/posts`, {
-        cache: 'no-store',
+        next: { revalidate: 10 },
       })
       const data = await response.json()
       setPosts(data)
