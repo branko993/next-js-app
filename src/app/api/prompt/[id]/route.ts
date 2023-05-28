@@ -1,12 +1,15 @@
 import Prompt from '@/models/prompt'
 import { connectToDB } from '@/utils/database'
-
-export const revalidate = 5
+import { revalidatePath } from 'next/cache'
+import { NextRequest } from 'next/server'
 
 export async function GET(
-  request: any,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<Response> {
+  const path = request.nextUrl.searchParams.get('path') || '/'
+  revalidatePath(path)
+
   try {
     await connectToDB()
 
