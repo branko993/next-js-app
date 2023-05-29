@@ -1,12 +1,19 @@
 import Prompt from '@/models/prompt'
+import { handleApiError } from '@/utils/api-errors'
 import { connectToDB } from '@/utils/database'
 import { revalidatePath } from 'next/cache'
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import * as yup from 'yup'
+
+const patchSchema = yup.object().shape({
+  prompt: yup.string().required(),
+  tag: yup.string().required(),
+})
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<Response> {
+) {
   const path = request.nextUrl.searchParams.get('path') || '/'
   revalidatePath(path)
 
@@ -14,48 +21,67 @@ export async function GET(
     await connectToDB()
 
     const prompt = await Prompt.findById(params.id).populate('creator')
-    if (!prompt) return new Response('Prompt not found', { status: 404 })
+    if (!prompt)
+      return NextResponse.json({ message: 'Prompt not found' }, { status: 404 })
 
-    return new Response(JSON.stringify(prompt), { status: 200 })
+    return NextResponse.json(prompt, { status: 200 })
   } catch (e) {
     console.log(e)
-    return new Response('Failed to fetch prompt', { status: 500 })
+    return NextResponse.json(
+      { message: 'Failed to fetch prompt' },
+      { status: 500 }
+    )
   }
 }
 
 export async function PATCH(
-  request: any,
+  request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<Response> {
-  const { prompt, tag } = await request.json()
-
+) {
   try {
+    const body = await request.json()
+
+    const { prompt, tag } = await patchSchema.validate(body, {
+      abortEarly: false,
+    })
+
     await connectToDB()
     const existingPrompt = await Prompt.findById(params.id)
     if (!existingPrompt)
-      return new Response('Prompt not found', { status: 404 })
+      return NextResponse.json(
+        {
+          message: 'Prompt not found',
+        },
+        { status: 404 }
+      )
 
     existingPrompt.prompt = prompt
     existingPrompt.tag = tag
     existingPrompt.save()
-    return new Response(JSON.stringify(existingPrompt), { status: 200 })
+    return NextResponse.json(
+      {
+        _id: existingPrompt._id,
+        prompt: existingPrompt.prompt,
+        tag: existingPrompt.tag,
+      },
+      { status: 200 }
+    )
   } catch (e) {
-    console.log(e)
-    return new Response('Failed update prompt', { status: 500 })
+    return handleApiError(e, 'Failed to update prompt')
   }
 }
 
 export async function DELETE(
-  request: any,
+  request: NextRequest,
   { params }: { params: { id: string } }
-): Promise<Response> {
+) {
   try {
     await connectToDB()
     await Prompt.findByIdAndRemove(params.id)
 
-    return new Response('Prompt deleted successfully', { status: 200 })
+    return NextResponse.json('Prompt deleted successfully', { status: 200 })
   } catch (e) {
     console.log(e)
-    return new Response('Failed delete prompt', { status: 500 })
+    return NextResponse.json('Failed delete prompt', { status: 500 })
   }
 }

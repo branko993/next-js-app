@@ -1,8 +1,10 @@
 'use client'
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import * as yup from 'yup'
 
 import Form from '@/components/Form'
+import { promptSchema } from '@/models/schemas/prompt'
 export type PostType = {
   prompt: string
   tag: string
@@ -19,6 +21,7 @@ const UpdatePrompt = (props: Props) => {
     prompt: '',
     tag: '',
   })
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({})
 
   useEffect(() => {
     const getPromptDetails = async () => {
@@ -32,25 +35,52 @@ const UpdatePrompt = (props: Props) => {
     getPromptDetails()
   }, [promptId])
 
+  useEffect(() => {
+    validatePosts()
+  }, [post])
+
+  const validatePosts = async () => {
+    try {
+      await promptSchema.validate(post, { abortEarly: false })
+      setFormErrors({})
+      return true
+    } catch (validationError: any) {
+      if (yup.ValidationError.isError(validationError)) {
+        const errors: { [key: string]: string } = {}
+        validationError.inner.forEach((error) => {
+          if (error.path) {
+            errors[error.path] = error.message
+          }
+        })
+        setFormErrors(errors)
+      }
+
+      return false
+    }
+  }
+
   const UpdatePrompt = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
     if (!promptId) return alert('Prompt ID not found')
+    const isFormValid = await validatePosts()
 
-    try {
-      const response = await fetch(`/api/prompt/${promptId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          prompt: post.prompt,
-          tag: post.tag,
-        }),
-      })
+    if (isFormValid) {
+      try {
+        const response = await fetch(`/api/prompt/${promptId}`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            prompt: post.prompt,
+            tag: post.tag,
+          }),
+        })
 
-      if (response.ok) {
-        router.push('/')
+        if (response.ok) {
+          router.push('/')
+        }
+      } catch (e) {
+        console.log('error', e)
       }
-    } catch (e) {
-      console.log('error', e)
     }
     setSubmitting(false)
   }
@@ -61,6 +91,7 @@ const UpdatePrompt = (props: Props) => {
       setPost={setPost}
       submitting={submitting}
       handleSubmit={UpdatePrompt}
+      formErrors={formErrors}
     />
   )
 }

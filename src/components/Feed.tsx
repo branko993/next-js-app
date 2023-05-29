@@ -1,7 +1,8 @@
 'use client'
 
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import PromptCard from './PromptCard'
+import { debounce } from 'lodash'
 
 type Props = {}
 
@@ -12,15 +13,33 @@ function Feed({}: Props) {
   useEffect(() => {
     const fetchPosts = async () => {
       const response = await fetch('/api/prompt')
-      const data = await response.json()
-      setPosts(data)
+      if (response.ok) {
+        const data = await response.json()
+        setPosts(data)
+      }
     }
     fetchPosts()
   }, [])
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-  }
+  const debouncedSearch = useCallback(
+    debounce(
+      (searchTerm: string) => {
+        // Perform your search operation or any other action here
+        console.log(`Searching for: ${searchTerm}`)
+      },
+      750,
+      { trailing: true }
+    ),
+    []
+  )
+
+  const handleSearchChange = useCallback(
+    ({ target }: ChangeEvent<HTMLInputElement>) => {
+      setSearchText(target.value)
+      debouncedSearch(target.value)
+    },
+    [debouncedSearch]
+  )
 
   const renderPrompts = () =>
     posts.map((post) => (
