@@ -1,11 +1,12 @@
 'use client'
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import * as yup from 'yup'
 
 import Form from '@/components/Form'
 import { promptSchema } from '@/models/schemas/prompt'
+import { useSkipFirstRenderEffect } from '@/utils/custom-hooks'
 export type PostType = {
   prompt: string
   tag: string
@@ -24,7 +25,8 @@ const CreatePrompt = (props: Props) => {
     tag: '',
   })
 
-  useEffect(() => {
+  useSkipFirstRenderEffect(() => {
+    // Perform your desired actions or side effects on subsequent renders
     validatePosts()
   }, [post])
 

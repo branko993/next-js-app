@@ -5,6 +5,7 @@ import * as yup from 'yup'
 
 import Form from '@/components/Form'
 import { promptSchema } from '@/models/schemas/prompt'
+import { useSkipFirstRenderEffect } from '@/utils/custom-hooks'
 export type PostType = {
   prompt: string
   tag: string
@@ -35,7 +36,7 @@ const UpdatePrompt = (props: Props) => {
     getPromptDetails()
   }, [promptId])
 
-  useEffect(() => {
+  useSkipFirstRenderEffect(() => {
     validatePosts()
   }, [post])
 

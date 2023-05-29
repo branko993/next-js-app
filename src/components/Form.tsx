@@ -46,7 +46,9 @@ function Form({
             placeholder="Write your prompt here..."
             required
             className={`form_textarea ${
-              formErrors.prompt ? 'border-2 border-red-500' : ''
+              formErrors.prompt
+                ? 'border-2 border-red-500 focus:outline-none'
+                : ''
             }`}
           />
           {formErrors.prompt && (
@@ -73,7 +75,7 @@ function Form({
             placeholder="#tags"
             required
             className={`form_input ${
-              formErrors.tag ? 'border-2 border-red-500' : ''
+              formErrors.tag ? 'border-2 border-red-500 focus:outline-none' : ''
             }`}
           />
           {formErrors.tag && (
