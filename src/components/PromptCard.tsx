@@ -11,6 +11,7 @@ type Props = {
     tag: string
   }
   handleTagClick: Function
+  handleProfileClick: Function
   extraActions?: {
     name: string
     onClick: Function
@@ -18,7 +19,12 @@ type Props = {
   }[]
 }
 
-function PromptCard({ post, handleTagClick, extraActions }: Props) {
+function PromptCard({
+  post,
+  handleTagClick,
+  extraActions,
+  handleProfileClick,
+}: Props) {
   const [copied, setCopied] = useState<string>('')
 
   const handleCopy = () => {
@@ -57,7 +63,10 @@ function PromptCard({ post, handleTagClick, extraActions }: Props) {
   return (
     <div className="prompt_card">
       <div className="flex justify-between items-start gap-5">
-        <div className="flex-1 flex justify-start items-center gap-3 cursor-pointer">
+        <div
+          className="flex-1 flex justify-start items-center gap-3 cursor-pointer"
+          onClick={() => handleProfileClick(post.creator._id)}
+        >
           <Image
             src={post.creator.image}
             alt="user_image"

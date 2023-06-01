@@ -68,9 +68,21 @@ function Feed({}: Props) {
     [updatePath]
   )
 
+  const handleProfileClick = useCallback(
+    (id: string) => {
+      router.push(`/user/${id}`)
+    },
+    [router]
+  )
+
   const renderPrompts = () =>
     posts.map((post) => (
-      <PromptCard key={post._id} post={post} handleTagClick={handleTagClick} />
+      <PromptCard
+        key={post._id}
+        post={post}
+        handleTagClick={handleTagClick}
+        handleProfileClick={handleProfileClick}
+      />
     ))
   return (
     <section className="feed">

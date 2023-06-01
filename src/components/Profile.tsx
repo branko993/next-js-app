@@ -6,28 +6,36 @@ type Props = {
   name: string
   desc: string
   data: any[]
-  handleEdit: Function
-  handleDelete: Function
+  handleEdit?: Function
+  handleDelete?: Function
 }
 
 function Profile({ name, desc, data, handleEdit, handleDelete }: Props) {
   const router = useRouter()
 
   const extraActions = [
-    {
-      name: 'Edit',
-      onClick: (id: string) => {
-        handleEdit(id)
-      },
-      styles: 'font-inter text-sm green_gradient cursor-pointer',
-    },
-    {
-      name: 'Delete',
-      onClick: (id: string) => {
-        handleDelete(id)
-      },
-      styles: 'font-inter text-sm orange_gradient cursor-pointer',
-    },
+    ...(handleEdit
+      ? [
+          {
+            name: 'Edit',
+            onClick: (id: string) => {
+              handleEdit(id)
+            },
+            styles: 'font-inter text-sm green_gradient cursor-pointer',
+          },
+        ]
+      : []),
+    ...(handleDelete
+      ? [
+          {
+            name: 'Delete',
+            onClick: (id: string) => {
+              handleDelete(id)
+            },
+            styles: 'font-inter text-sm orange_gradient cursor-pointer',
+          },
+        ]
+      : []),
   ]
   const handleTagClick = useCallback(
     (tag: string) => {
@@ -45,6 +53,7 @@ function Profile({ name, desc, data, handleEdit, handleDelete }: Props) {
         post={post}
         handleTagClick={handleTagClick}
         extraActions={extraActions}
+        handleProfileClick={() => {}}
       />
     ))
   return (
