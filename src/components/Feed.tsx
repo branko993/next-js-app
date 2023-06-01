@@ -11,7 +11,6 @@ function Feed({}: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const search = decodeURIComponent(searchParams.get('search') || '')
-  console.log(search)
   const [searchText, setSearchText] = useState<string>(search)
   const [posts, setPosts] = useState<any[]>([])
 
