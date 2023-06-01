@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import PromptCard from './PromptCard'
+import { useRouter } from 'next/navigation'
 
 type Props = {
   name: string
@@ -10,6 +11,8 @@ type Props = {
 }
 
 function Profile({ name, desc, data, handleEdit, handleDelete }: Props) {
+  const router = useRouter()
+
   const extraActions = [
     {
       name: 'Edit',
@@ -26,12 +29,21 @@ function Profile({ name, desc, data, handleEdit, handleDelete }: Props) {
       styles: 'font-inter text-sm orange_gradient cursor-pointer',
     },
   ]
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      const encodedTag = encodeURIComponent(tag)
+      const updatedPath = `/?search=${encodedTag}`
+      router.push(updatedPath)
+    },
+    [router]
+  )
+
   const renderPrompts = () =>
     data.map((post) => (
       <PromptCard
         key={post._id}
         post={post}
-        handleTagClick={() => {}}
+        handleTagClick={handleTagClick}
         extraActions={extraActions}
       />
     ))

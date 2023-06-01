@@ -3,34 +3,54 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import PromptCard from './PromptCard'
 import { debounce } from 'lodash'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 type Props = {}
 
 function Feed({}: Props) {
-  const [searchText, setSearchText] = useState<string>('')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const search = decodeURIComponent(searchParams.get('search') || '')
+  console.log(search)
+  const [searchText, setSearchText] = useState<string>(search)
   const [posts, setPosts] = useState<any[]>([])
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const response = await fetch('/api/prompt')
-      if (response.ok) {
-        const data = await response.json()
-        setPosts(data)
-      }
+    fetchPosts(search)
+  }, [search])
+
+  const fetchPosts = async (searchTerm?: string) => {
+    const encodedSearchTerm = encodeURIComponent(searchTerm || '')
+
+    const response = await fetch(
+      `/api/prompt${encodedSearchTerm ? `?search=${encodedSearchTerm}` : ''}`
+    )
+    if (response.ok) {
+      const data = await response.json()
+      setPosts(data)
     }
-    fetchPosts()
-  }, [])
+  }
 
   const debouncedSearch = useCallback(
     debounce(
       (searchTerm: string) => {
-        // Perform your search operation or any other action here
-        console.log(`Searching for: ${searchTerm}`)
+        updatePath(searchTerm)
       },
       750,
       { trailing: true }
     ),
     []
+  )
+
+  const updatePath = useCallback(
+    (searchTerm: string) => {
+      const encodedSearchTerm = encodeURIComponent(searchTerm)
+      const updatedPath = encodedSearchTerm
+        ? `/?search=${encodedSearchTerm}`
+        : '/'
+      router.replace(updatedPath)
+    },
+    [router]
   )
 
   const handleSearchChange = useCallback(
@@ -41,9 +61,17 @@ function Feed({}: Props) {
     [debouncedSearch]
   )
 
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      setSearchText(tag)
+      updatePath(tag)
+    },
+    [updatePath]
+  )
+
   const renderPrompts = () =>
     posts.map((post) => (
-      <PromptCard key={post._id} post={post} handleTagClick={() => {}} />
+      <PromptCard key={post._id} post={post} handleTagClick={handleTagClick} />
     ))
   return (
     <section className="feed">

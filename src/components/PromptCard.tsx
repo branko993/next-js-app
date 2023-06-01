@@ -32,7 +32,7 @@ function PromptCard({ post, handleTagClick, extraActions }: Props) {
     extraActions.map((action) => (
       <p
         className={action.styles}
-        onClick={(e) => {
+        onClick={() => {
           action.onClick(post._id)
         }}
         key={action.name}
@@ -46,7 +46,9 @@ function PromptCard({ post, handleTagClick, extraActions }: Props) {
       <span
         key={index}
         className="font-inter text-sm blue_gradient cursor-pointer mr-2"
-        onClick={() => {}}
+        onClick={() => {
+          handleTagClick(tag)
+        }}
       >
         {tag}
       </span>
