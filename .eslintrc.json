@@ -1,0 +1,10 @@
+{
+  "extends": [
+    "eslint-config-next",
+    "prettier",
+    "plugin:storybook/recommended"
+  ],
+  "rules": {
+    "no-unused-vars": "warn"
+  }
+}
